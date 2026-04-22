@@ -61,9 +61,9 @@ function AlertBanner({ onDismiss }) {
         <span className="text-white/60 mx-2">·</span>
         <span className="text-white/60">Root cause identified: </span>
         <span className="font-medium text-[#FF385C]">PRICE_ALGO_V12</span>
-        <span className="text-white/60"> deployed Apr 2 · Click-to-book conversion −38%</span>
+        <span className="text-white/60"> deployed Mar 3 · Click-to-book conversion −38%</span>
         <span className="text-white/60 mx-2">·</span>
-        <span className="text-white/60 text-xs">Detected Apr 4 · Still active</span>
+        <span className="text-white/60 text-xs">Detected Mar 4 · Day +1</span>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
         <span className="text-xs px-2 py-0.5 rounded-full bg-[#FF385C]/20 text-[#FF385C] font-semibold">HIGH</span>
@@ -213,7 +213,7 @@ function MetricFunnel({ kpis, funnel, dx }) {
       <FunnelNode level={3} label="View → Click"              value={`${(dx.vc.post * 100).toFixed(1)}%`}   delta={dx.vc.pct} />
       <FunnelNode level={3} label="Click → Book"              value={`${(dx.cb.post * 100).toFixed(1)}%`}   delta={dx.cb.pct} isBreak />
       <FunnelNode level={4} label="Price Gap vs Hotels"       value={`+${(dx.pg.pct * 100).toFixed(1)}%`}   delta={dx.pg.pct} isBreak isLeaf />
-      <FunnelNode level={4} label="Deploy: PRICE_ALGO_V12"    value="Apr 2" isBreak isLeaf />
+      <FunnelNode level={4} label="Deploy: PRICE_ALGO_V12"    value="Mar 3" isBreak isLeaf />
     </div>
   );
 }
@@ -235,7 +235,7 @@ function IncidentSummary({ kpis, dx }) {
         London GBV is tracking{' '}
         <span className="text-[#FF385C] font-semibold">{fmtPct(kpis.londonGBVPct)}</span> below forecast.
         Root cause: <span className="text-white font-semibold">PRICE_ALGO_V12</span> deployed{' '}
-        <span className="text-white font-semibold">April 2</span> raised London median nightly rate{' '}
+        <span className="text-white font-semibold">March 3</span> raised London median nightly rate{' '}
         <span className="text-[#FF385C] font-semibold">{fmtPct(dx.nr.pct)}</span> while the hotel index
         moved <span className="font-semibold text-white">{fmtPct(dx.hi.pct)}</span>.
       </p>
@@ -274,10 +274,10 @@ function IncidentSummary({ kpis, dx }) {
       {/* Timeline */}
       <div className="space-y-1.5">
         {[
-          { date: 'Apr 2', label: 'PRICE_ALGO_V12 deployed (scope: EU-metro)', status: 'alarm' },
-          { date: 'Apr 4', label: 'System detected GBV anomaly (z = −7.8)', status: 'warn' },
-          { date: 'Apr 4', label: 'Root cause identified: pricing competitiveness', status: 'warn' },
-          { date: 'Apr 22', label: 'Incident still active — rollback pending', status: 'info' },
+          { date: 'Mar 3', label: 'PRICE_ALGO_V12 deployed (scope: EU-metro)', status: 'alarm' },
+          { date: 'Mar 4', label: 'System detected GBV anomaly (z = −7.8)', status: 'warn' },
+          { date: 'Mar 4', label: 'Root cause identified: pricing competitiveness', status: 'warn' },
+          { date: 'Mar 31', label: 'Monitoring window ends — issue remains visible', status: 'info' },
         ].map((ev, i) => (
           <div key={i} className="flex items-start gap-3 text-xs">
             <span className="text-[#4A4D60] flex-shrink-0 w-10 pt-0.5">{ev.date}</span>
@@ -317,7 +317,7 @@ export default function App() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 bg-[#1A1D27] border border-[#1E2030] rounded-lg px-3 py-1.5">
             <Clock size={12} className="text-[#8B8D9E]" />
-            <span className="text-xs text-[#8B8D9E]">Feb 1 – Apr 22, 2026</span>
+            <span className="text-xs text-[#8B8D9E]">Jan 1 – Mar 31, 2026</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-[#FF385C] bg-[#FF385C]/10 border border-[#FF385C]/30 rounded-lg px-3 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF385C] pulse-red" />
@@ -376,7 +376,7 @@ export default function App() {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-px bg-[#FF385C] inline-block" style={{ borderTop: '1px dashed #FF385C' }} />
-                V12 deploy Apr 2
+                V12 deploy Mar 3
               </span>
             </div>
           </div>
@@ -429,7 +429,7 @@ export default function App() {
               <SectionLabel icon={Activity} label="London — Price Competitiveness vs Hotel Index" />
               <p className="text-xs text-[#8B8D9E] -mt-2">
                 The gap between Airbnb nightly rate and the competitor hotel index is the root signal.
-                Airbnb became materially more expensive than hotels on April 2 and stayed that way.
+                Airbnb became materially more expensive than hotels on March 3 and stayed that way.
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0 ml-6">

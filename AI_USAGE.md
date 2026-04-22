@@ -23,6 +23,12 @@ trusting the generated output directly.
 
 ![Project revision prompt](screenshots/02-project-revision-prompt.png)
 
+**Final consistency prompt.** I used AI again to check the repo and dashboard
+for date consistency, especially making sure the dataset, written deliverable,
+and dashboard all pointed to March 3 as the pricing change date.
+
+![Final consistency prompt](screenshots/02-final-consistency-prompt.png)
+
 ## Tools I used
 
 - **Claude (primary)** — for drafting the metric tree, the diagnostic

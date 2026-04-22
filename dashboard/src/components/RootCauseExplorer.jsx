@@ -123,7 +123,7 @@ export function RootCauseExplorer({ dx }) {
         { label: 'Competitor Hotel Index', pre: `$${dx.hi.pre.toFixed(0)}`,  post: `$${dx.hi.post.toFixed(0)}`,  pctVal: dx.hi.pct,  isAlarm: false },
         { label: 'Price Gap (Airbnb / Hotel)', pre: `${dx.pg.pre.toFixed(3)}`, post: `${dx.pg.post.toFixed(3)}`, pctVal: dx.pg.pct,  isAlarm: true, flip: true },
       ],
-      insight: 'PRICE_ALGO_V12 deployed Apr 2 pushed London nightly rates +14.7% while the hotel index moved +0.4%. The competitiveness gap widened ~14%, making Airbnb materially more expensive vs hotels.',
+      insight: 'PRICE_ALGO_V12 deployed Mar 3 pushed London nightly rates +14.7% while the hotel index moved +0.4%. The competitiveness gap widened ~14%, making Airbnb materially more expensive vs hotels.',
     },
     {
       badge: '⑤ Isolate',

@@ -57,41 +57,36 @@ competitor hotel index stays flat. Click-to-book conversion collapses ~40%.
 Other cities are untouched. The pipeline detects this on March 4 (Day +1)
 once the anomaly has persisted for two consecutive days.
 
-## Trade-offs I made on purpose
+## Tradeoffs I made
 
-- **Rolling z-score, not Prophet / STL.** A rolling window captures a
-  regime shift well, is easy to explain to a non-technical reader, and
-  has no training step. For a 2-hour prototype on a 1-month anomaly, the
-  added complexity of a proper forecasting model wouldn't change the answer.
-- **MIN_STREAK = 2.** Requiring two consecutive anomalous days before firing
-  eliminates single-day noise spikes while still catching a genuine regime
-  shift within 24 hours of confirmation. Detection fires on March 4, not
-  March 3, which matches the "Day +1" detection story.
-- **Business-weighted severity.** `severity = |z| × |pct| × weight`, where
-  `gross_booking_value` carries weight 10 vs weight 1 for clicks. This
-  ensures the pipeline always surfaces the business-level incident first and
-  drills down from there, rather than leading with a leaf metric.
-- **Deterministic drill-down, not an LLM planner.** The diagnostic logic
-  follows a fixed metric tree. The tree is an accounting identity; the
-  drill target is always arithmetic. LLMs are reserved for the summary layer.
-- **Mocked LLM summarizer.** Swapping to a real Claude call is a two-line
-  change (serialize the `Diagnosis` dataclass to JSON, pass in a fixed prompt).
-- **Single-process, CSV in/out.** A real deployment would read from a
-  warehouse (Snowflake/BigQuery) and emit to a queue. CSV keeps setup
-  zero-config.
+1. Simple anomaly detection over complex forecasting
+I used a rolling z-score / baseline variance approach instead of Prophet or heavier forecasting models. For a sharp step-change like a 40% drop in conversion, a simpler method is fast to build, easy to explain, and good enough to identify the issue. In this case, speed and clarity mattered more than model sophistication.
 
-## What I would build next (if this were week 2, not hour 4)
+2. Two-day confirmation before alerting
+I required anomalies to persist for two consecutive days before triggering an alert. This reduces false positives caused by one-off noise such as weekends, weather, events, or temporary tracking issues, while still allowing the system to catch a genuine problem quickly. It creates a more realistic operating model than escalating every single-day fluctuation.
 
-1. **Pluggable detector.** Swap z-score for STL + residual control chart
-   for slow drift, keep the rolling window for step changes. Ensemble on
-   agreement.
-2. **Learned tree.** Today the metric tree is hand-coded. For a real
-   marketplace you'd learn the graph from metric co-movement + schema
-   (every ratio metric's numerator/denominator is a known child).
-3. **Change-log as first-class input.** Pipe deploys, experiment
-   activations, pricing-algo changes, and host-side policy changes into
-   a shared event stream the diagnoser can correlate against.
-4. **Real LLM at the summary layer** with the structured `Diagnosis`
-   object as the sole input — keeps hallucination surface small.
-5. **Alert budgeting.** Score by business impact × statistical strength
-   × novelty, and only escalate the top-N per day.
+3. Prioritised business impact, not raw statistical movement
+I weighted metrics based on commercial importance, so Gross Booking Value ranks above bookings, conversion, or clicks. This means the system surfaces the incident the business actually cares about first, rather than leading with a smaller downstream metric that happened to move more sharply in percentage terms.
+
+4. Rule-based drilldown instead of AI-led diagnosis
+I used a deterministic metric tree to trace the root cause. For example, GBV declines because bookings fall, bookings fall because conversion drops, conversion drops in London, and London points toward a pricing competitiveness issue. This approach is transparent, reliable, and easier to trust for operational workflows. AI is better used to summarise findings than to reason through metric arithmetic.
+
+5. Lightweight data stack for prototype speed
+I used CSV and local files rather than a full warehouse or streaming setup. For a case study, the priority was demonstrating logic, prioritisation, and system design rather than enterprise infrastructure. In production, the same framework would sit on tools like Snowflake or BigQuery.
+
+## What I would build next with more time
+
+1. Add seasonality-aware detection
+I would adjust for weekday versus weekend patterns, holidays, and major local events so the system can distinguish true issues from normal demand fluctuations.
+
+2. Integrate deploy and experiment logs
+I would connect pricing releases, experiments, app changes, and regional configuration updates into the monitoring layer so the system can automatically test whether a recent change likely caused the anomaly.
+
+3. Improve segmentation depth
+I would auto-scan across city, device, user type, listing type, and trip length to isolate problems faster and reduce manual investigation time.
+
+4. Smart alert ranking
+I would rank alerts based on business impact, confidence, and novelty so only the most important incidents get escalated, reducing alert fatigue.
+
+5. AI summary layer for decision-makers
+Once the diagnosis is structured, I would use AI to turn it into a concise executive update such as: London bookings are down due to weaker conversion after a pricing model update, recommend rollback and pricing review.

@@ -1,5 +1,5 @@
 # Tilt — Founders Associate Take-Home
-**Candidate deliverable · April 2026**
+**Candidate deliverable · 2026**
 
 Repo contents:
 - `DELIVERABLE.md` — this document (Parts 1 & 2, gap analysis, AI notes)
@@ -78,7 +78,7 @@ The system "knows something is wrong" when any node deviates from its rolling fo
 
 ## Part 2 — Diagnostic walkthrough: the London pricing bug
 
-**Scenario: March 3, 2026. A pricing-algorithm change ships. By April 1, London GBV is 8% below forecast and no one knows why.** Here is exactly what the system does.
+**Scenario: March 3, 2026. A pricing-algorithm change ships. By month-end, London GBV is 8% below forecast and no one knows why.** Here is exactly what the system does.
 
 **Step 1 — Detect, March 4 (Day +1).** Overnight, the system scores every `(metric, city, day)` against its rolling baseline. London GBV has been anomalous for two consecutive days (MIN_STREAK = 2), crossing the threshold at −6% and widening. Global GBV still looks like noise because London is diluted inside the rollup, so the alert starts at the city level.
 
@@ -100,7 +100,7 @@ The break is therefore at the bottom of the funnel. People are clicking listings
 
 **Step 6 — Confirm with deploy logs and isolation.** The internal change log shows a March 3 pricing-algo update: `scope=EU-metro, cities=[LON, PAR, AMS]`. Paris and Amsterdam conversion are flat because local hotel baselines absorbed the rate lift; London did not. NYC, Tokyo, and Berlin are also normal. Localization + date match + external price signal gives high confidence.
 
-**Output.** A plain-English summary hits the CEO's inbox on March 4 (Day +1), not April 1:
+**Output.** A plain-English summary hits the CEO's inbox on March 4 (Day +1), not after a full month of underperformance:
 
 > **London GBV is tracking 6% below forecast and widening. Root cause: `PRICE_ALGO_V12` pushed London median nightly rate +14.7% while the hotel-rate index moved only +0.4%. Click-to-book conversion is down 38%; sessions, reviews, and availability are unchanged. Suggested next step: roll back or re-scope the pricing change for London.**
 

@@ -137,7 +137,7 @@ export function PriceCompChart({ data }) {
           stroke="#FF385C"
           strokeWidth={1.5}
           strokeDasharray="4 3"
-          label={{ value: 'Apr 2 — V12 Deploy', position: 'insideTopRight', fill: '#FF385C', fontSize: 10 }}
+          label={{ value: 'Mar 3 — V12 Deploy', position: 'insideTopRight', fill: '#FF385C', fontSize: 10 }}
         />
 
         <XAxis
