@@ -79,37 +79,35 @@ The system "knows something is wrong" when any node deviates from its rolling fo
 
 **Scenario: March 3, 2026. A pricing-algorithm change ships. By April 1, London GBV is 8% below forecast and no one knows why.** Here is exactly what the system does.
 
-**Step 1 — Detection, March 5 (Day +2).** Overnight job computes actual-vs-forecast for every (metric, city, day). GBV-London's 2-day rolling deviation crosses the alert threshold at −6%. Alert fires. At this point a human dashboard shows *nothing notable* — global GBV is within normal noise because the drop is one city.
+**Step 1 — Detect, March 5 (Day +2).** Overnight, the system scores every `(metric, city, day)` against its rolling baseline. London GBV crosses the alert threshold at −6% and widening. Global GBV still looks like noise because London is diluted inside the rollup, so the alert starts at the city level.
 
-**Step 2 — Decompose the top node.** `GBV = Bookings × ABV`. System computes each child's contribution to the parent deviation. Bookings-London: −11%. ABV-London: +3% (nightly rate is *up* — a clue, not a cause yet). Bookings is the culprit child; drill.
+**Step 2 — Decompose GBV.** `GBV = Bookings × ABV`. Bookings-London is −11%; ABV is +3%. That tells the system the issue is not basket size. It is fewer completed bookings, even though price is already moving up.
 
-**Step 3 — Decompose Bookings.** `Bookings = Sessions × Conversion`. Sessions-London: −1% (within noise). Conversion-London: **−10% and widening daily**. Sessions being flat is load-bearing evidence — this is not a demand problem, it's a conversion problem.
+**Step 3 — Decompose Bookings.** `Bookings = Sessions × Conversion`. Sessions are flat at −1%, while conversion is **−10% and widening daily**. That is load-bearing evidence: demand has not disappeared; users are arriving but failing to book.
 
-**Step 4 — Decompose Conversion (the funnel).** The system breaks the end-to-end rate into stages:
+**Step 4 — Decompose Conversion.** The system breaks the funnel into stages:
 - Search → View: flat
 - View → Click: flat
 - **Click → Book: −38%**, and it started exactly on March 3.
 
-The break is at the bottom of the funnel. People are clicking listings and *not* booking them. They see something they don't like *on the listing page*.
+The break is therefore at the bottom of the funnel. People are clicking listings, reaching the page, and then walking away.
 
-**Step 5 — Generate hypotheses at the leaf level.** Click-to-book drops have three usual suspects: price, trust (reviews/rating), and friction (availability, cancellation). The system checks each:
+**Step 5 — Test leaf hypotheses.** Click-to-book drops usually come from price, trust, or friction. The system checks all three:
 - **Reviews**: London rating distribution unchanged. Eliminated.
 - **Availability / cancellation policy**: no host-side changes correlated with March 3. Eliminated.
 - **Price competitiveness**: Airbnb London median nightly rate rose 14.7% starting March 3; the external hotel-rate index rose 0.4%. **Price-vs-competitor gap widened by ~14% on exactly the break date.** Strong match.
 
-**Step 6 — Confirm with change-log correlation.** The system cross-references its internal deploy log (every pricing-algorithm change is tagged with date + city scope). On March 3, a pricing-algo update is tagged `scope=EU-metro, cities=[LON, PAR, AMS]`. But Paris and Amsterdam conversion are flat. Why? Because in those cities the change didn't push Airbnb above local hotel rates — the hotel baseline in London was uniquely low. The system flags this nuance.
+**Step 6 — Confirm with deploy logs and isolation.** The internal change log shows a March 3 pricing-algo update: `scope=EU-metro, cities=[LON, PAR, AMS]`. Paris and Amsterdam conversion are flat because local hotel baselines absorbed the rate lift; London did not. NYC, Tokyo, and Berlin are also normal. Localization + date match + external price signal gives high confidence.
 
-**Step 7 — Confidence check via isolation.** The system confirms the anomaly is London-specific: same funnel in NYC, Tokyo, Berlin is normal. This rules out global causes (a platform bug, a macro demand shift). Localization + date match + external-signal correlation = high confidence.
+**Output.** A plain-English summary hits the CEO's inbox on March 5, not April 1:
 
-**Step 8 — Output.** A plain-English summary hits the CEO's inbox on March 5, not April 1:
+> **London GBV is tracking 6% below forecast and widening. Root cause: `PRICE_ALGO_V12` pushed London median nightly rate +14.7% while the hotel-rate index moved only +0.4%. Click-to-book conversion is down 38%; sessions, reviews, and availability are unchanged. Suggested next step: roll back or re-scope the pricing change for London.**
 
-> **London GBV is tracking 6% below forecast (widening). Root cause: pricing-algorithm change deployed March 3 (`PRICE_ALGO_V12`, scope EU-metro) pushed London median nightly rate +14.7% while the local hotel-rate index moved +0.4%. Click-to-book conversion has dropped 38% and is the sole driver; sessions, reviews, and availability are unchanged. Paris and Amsterdam received the same deploy but are unaffected because their hotel baselines absorbed the rate lift. Suggested next step: roll back or re-scope `PRICE_ALGO_V12` for London only.**
-
-**Why it beat the humans.** The humans were looking at the wrong altitude. Global dashboards didn't show it; daily standups talked about aggregate KPIs. The city/funnel/external-signal cut that identified the bug requires *someone* to slice the cube that specific way — and until you have a hypothesis, you don't know which slice to look at. The system doesn't need a hypothesis; it tries every slice, every night.
+**Why it beat the humans.** The humans were looking at the wrong altitude. Global dashboards hid the issue; daily standups discussed aggregate KPIs. The system does not wait for a hypothesis — it tries every city, funnel stage, and external-signal cut every night.
 
 ---
 
-## Why daily dashboards missed it — and how this system closes each gap
+## Appendix — Why daily dashboards missed it
 
 The London pricing bug went undetected for nearly a month despite daily standups and standard dashboards. That delay is not a staffing problem or an effort problem — it is an architecture problem. Ten structural blind spots let it hide, and each one has a direct countermeasure in this design.
 
