@@ -50,7 +50,7 @@ Three tests cover: data shape and anomaly injection, top alert is London GBV
 | `dashboard/` | React + Vite analytics dashboard, deployed to GitHub Pages |
 | `data/marketplace_metrics.csv` | Committed dataset (90 days × 5 cities, seed = 7) |
 
-## The planted anomaly
+## The anomaly
 
 On day 61 (March 3, 2026), London's nightly rate jumps ~15% while the
 competitor hotel index stays flat. Click-to-book conversion collapses ~40%.
