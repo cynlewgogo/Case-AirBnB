@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Node / dashboard build
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+
+# Data (generated; reproducible via pipeline)
+data/
+
+# OS
+.DS_Store
+Thumbs.db
