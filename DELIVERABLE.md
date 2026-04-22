@@ -2,7 +2,6 @@
 **Candidate deliverable · April 2026**
 
 Repo contents:
-- `PLAN.md` — how I budgeted the 4 hours
 - `DELIVERABLE.md` — this document (Parts 1 & 2, gap analysis, AI notes)
 - `README.md` — how to run Part 3
 - `src/` — the working pipeline
@@ -65,13 +64,13 @@ Live dashboard: **[cynlewgogo.github.io/Case-AirBnB](https://cynlewgogo.github.i
 
 Three design principles:
 
-1. **Identity decomposition, not correlation.** Every parent must equal (or cleanly compose from) its children — `GBV = Bookings × ABV`, `Bookings = Sessions × Conversion`. This means when a parent moves, the children *must* add up to explain it. No ambiguity, no "maybe it's this." The tree is an accounting identity, and accounting identities don't lie.
+1. **Model each node as a function, not a loose correlation.** `GBV` is a function of `Bookings` and `ABV`; `Bookings` is a function of `Sessions` and `Conversion`; `Conversion` is a function of funnel-stage rates. When a metric moves, the system asks which input variable changed enough to explain the movement, then decomposes that input again. The tree is not just a dashboard hierarchy — it is a set of equations that narrows the search space.
 
-2. **Drill paths end at *actionable* leaves.** The leaves of the tree aren't metrics — they're *causes a human can act on*: a pricing-algorithm deploy, a hotel-rate shift, a review sentiment drift. The system isn't done when it finds the metric that broke; it's done when it finds the *lever* that broke it.
+2. **Separate measured variables from causal drivers.** Middle nodes are measurable signals: sessions, conversion, nightly rate, funnel-stage rates. The terminal nodes are drivers a team can actually act on: a pricing-algorithm deploy, a hotel-rate shift, a review-quality drift, an availability change. The system is not done when it finds the metric that moved; it is done when it finds the driver behind the movement.
 
-3. **External signals hang off leaves.** The London bug was invisible inside Airbnb's own funnel — conversion just "dropped." The cause was *outside*: competitor pricing didn't follow Airbnb up. The tree must ingest external signals (hotel rate indices, OTA scrapes) and internal change logs (pricing algo deploys, feature flags) at the leaf level, or the system will forever stop at "click-to-book conversion dropped" without knowing *why*.
+3. **Attach context to the driver nodes.** The London bug was not fully visible inside Airbnb's own funnel — conversion just "dropped." The missing context was external: hotel prices did not rise with Airbnb's prices. So the system needs external feeds (hotel-rate indices, OTA scrapes) and operational logs (pricing deploys, feature flags, experiment launches) attached to the relevant driver nodes. Without that context, it can identify the broken variable but not the cause.
 
-The system "knows something is wrong" when any node deviates from its rolling forecast beyond threshold, weighted by business impact (a 5% drop in GBV-London matters more than a 5% drop in Sessions-Berlin). It "knows where to look next" by walking *down* the tree: at each level, whichever child explains the most of the parent's deviation is the next drill target. Repeat until a leaf with an external-signal correlation is found. That's the suspect.
+The system "knows something is wrong" when any node deviates from its rolling forecast beyond threshold, weighted by business impact (a 5% drop in GBV-London matters more than a 5% drop in Sessions-Berlin). It "knows where to look next" by recalculating the metric as a function of its inputs and choosing the input whose change contributes most to the deviation. It repeats that process until it reaches a causal driver with matching timing and evidence. That is the suspect.
 
 ---
 
