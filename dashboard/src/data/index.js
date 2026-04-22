@@ -46,7 +46,7 @@ const r2 = (v) => Math.round(v * 100) / 100;
 function generateRows() {
   resetSeed();
   const rows = [];
-  const startDate = new Date('2026-02-01');
+  const startDate = new Date('2026-01-01');
 
   for (let i = 0; i < DAYS; i++) {
     const d = new Date(startDate);
