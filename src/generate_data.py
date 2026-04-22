@@ -1,8 +1,8 @@
 """Generate synthetic marketplace metrics with a planted anomaly.
 
-The anomaly: on day 60, a pricing-algo deploy raises London's nightly rate
-by ~15% while the local hotel rate index is flat. Click-to-book conversion
-collapses by ~40% as a consequence. Other cities are untouched.
+The anomaly: on day 61 (March 3, 2026), a pricing-algo deploy raises London's
+nightly rate by ~15% while the local hotel rate index is flat. Click-to-book
+conversion collapses by ~40% as a consequence. Other cities are untouched.
 """
 
 from __future__ import annotations
@@ -18,7 +18,8 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "marketplace_metri
 
 CITIES = ["London", "Paris", "New York", "Tokyo", "Berlin"]
 DAYS = 90
-ANOMALY_START_DAY = 60
+START_DATE = date(2026, 1, 1)   # 90 days → Jan 1 – Mar 31; anomaly on Mar 3
+ANOMALY_START_DAY = 61          # Jan 1 + 61 days = March 3 (matches narrative)
 ANOMALY_CITY = "London"
 
 # Per-city baseline sessions/day and nightly rate (USD-equivalent).
@@ -65,11 +66,10 @@ def _weekday_effect(d: date) -> float:
 
 def generate(seed: int = 7) -> list[DayRow]:
     random.seed(seed)
-    start = date(2026, 2, 1)
     rows: list[DayRow] = []
 
     for day_idx in range(DAYS):
-        d = start + timedelta(days=day_idx)
+        d = START_DATE + timedelta(days=day_idx)
         for city in CITIES:
             base = CITY_BASELINE[city]
             sessions = int(base["sessions"] * _weekday_effect(d) * _noise(0.04))

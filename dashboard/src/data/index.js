@@ -7,9 +7,9 @@
 // ── Constants ────────────────────────────────────────────────────────────────
 export const CITIES = ['London', 'Paris', 'New York', 'Tokyo', 'Berlin'];
 export const ANOMALY_CITY = 'London';
-export const ANOMALY_DAY = 60; // day index (0-based); Feb 1 + 60 = Apr 2 2026
-export const ANOMALY_DATE = '2026-04-02';
-export const DETECTION_DATE = '2026-04-04';
+export const ANOMALY_DAY = 61; // day index (0-based); Jan 1 + 61 = Mar 3 2026
+export const ANOMALY_DATE = '2026-03-03';
+export const DETECTION_DATE = '2026-03-04';
 export const DAYS = 90;
 
 export const CITY_COLORS = {

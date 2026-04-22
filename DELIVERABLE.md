@@ -6,6 +6,8 @@ Repo contents:
 - `DELIVERABLE.md` — this document (Parts 1 & 2, gap analysis, AI notes)
 - `README.md` — how to run Part 3
 - `src/` — the working pipeline
+- `tests/` — three regression tests (no external deps)
+- `data/marketplace_metrics.csv` — the committed dataset (90 days × 5 cities, seed = 7)
 - `dashboard/` — the live React analytics dashboard
 - `AI_USAGE.md` — which tools I reached for and where I overrode them
 
@@ -79,7 +81,7 @@ The system "knows something is wrong" when any node deviates from its rolling fo
 
 **Scenario: March 3, 2026. A pricing-algorithm change ships. By April 1, London GBV is 8% below forecast and no one knows why.** Here is exactly what the system does.
 
-**Step 1 — Detection, March 5 (Day +2).** Overnight job computes actual-vs-forecast for every (metric, city, day). GBV-London's 2-day rolling deviation crosses the alert threshold at −6%. Alert fires. At this point a human dashboard shows *nothing notable* — global GBV is within normal noise because the drop is one city.
+**Step 1 — Detection, March 4 (Day +1).** Overnight job computes actual-vs-forecast for every (metric, city, day). GBV-London has been anomalous for two consecutive days; the rolling z-score crosses the threshold at −6% and the MIN_STREAK = 2 condition is met. Alert fires. At this point a human dashboard shows *nothing notable* — global GBV is within normal noise because the drop is one city.
 
 **Step 2 — Decompose the top node.** `GBV = Bookings × ABV`. System computes each child's contribution to the parent deviation. Bookings-London: −11%. ABV-London: +3% (nightly rate is *up* — a clue, not a cause yet). Bookings is the culprit child; drill.
 
@@ -101,7 +103,7 @@ The break is at the bottom of the funnel. People are clicking listings and *not*
 
 **Step 7 — Confidence check via isolation.** The system confirms the anomaly is London-specific: same funnel in NYC, Tokyo, Berlin is normal. This rules out global causes (a platform bug, a macro demand shift). Localization + date match + external-signal correlation = high confidence.
 
-**Step 8 — Output.** A plain-English summary hits the CEO's inbox on March 5, not April 1:
+**Step 8 — Output.** A plain-English summary hits the CEO's inbox on March 4 (Day +1), not April 1:
 
 > **London GBV is tracking 6% below forecast (widening). Root cause: pricing-algorithm change deployed March 3 (`PRICE_ALGO_V12`, scope EU-metro) pushed London median nightly rate +14.7% while the local hotel-rate index moved +0.4%. Click-to-book conversion has dropped 38% and is the sole driver; sessions, reviews, and availability are unchanged. Paris and Amsterdam received the same deploy but are unaffected because their hotel baselines absorbed the rate lift. Suggested next step: roll back or re-scope `PRICE_ALGO_V12` for London only.**
 

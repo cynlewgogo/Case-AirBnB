@@ -3,9 +3,65 @@
 The brief asked for transparency on where I used AI, what it got right,
 where it was wrong, and where my own judgment took over. Here it is.
 
+## Acting on reviewer feedback (post-submission improvements)
+
+A reviewer flagged five concrete issues with the original submission. I used
+Claude to help implement fixes, but the diagnosis of each problem and the
+decision on how to fix it was mine. Below is the reviewer's critique and what
+I changed.
+
+**1. Dataset not committed.** `.gitignore` had `/data/` at the root level,
+which accidentally matched `dashboard/src/data/` (blocking the JS data module)
+and excluded `data/marketplace_metrics.csv` from version control. I changed the
+gitignore pattern to `/data/*.json` and `/data/*.parquet` — keeping the CSV
+committable. The dataset is now in the repo. The root cause was a too-broad
+glob pattern; I caught it by reading what gitignore patterns actually match, not
+just what I intended them to match.
+
+**2. README clone path was wrong.** README said `cd tilt-founders-associate`
+which is the local folder name, not the repo name. A reviewer cloning the repo
+as `Case-AirBnB` would hit a dead path immediately. I updated the README to
+show the full `git clone` command followed by `cd Case-AirBnB`. This is
+embarrassing to miss — it's the first thing a reviewer runs.
+
+**3. Timeline mismatch between narrative and code.** DELIVERABLE.md said the
+pricing change ships March 3 and is detected by March 5, but `generate_data.py`
+started on February 1 and set `ANOMALY_START_DAY = 60`, putting the anomaly on
+April 2 — a full month after the narrative. This mattered because the
+assignment asks about catching an issue before a month of damage accrues.
+Having the planted anomaly land on April 2 made the demonstration timeline
+incoherent. Fix: changed `START_DATE` to January 1, `ANOMALY_START_DAY` to 61
+(January 1 + 61 days = March 3). Added `MIN_STREAK = 2` to `detect.py` so
+alerts fire after two consecutive anomalous days, giving detection on March 4
+(Day +1). Updated the DELIVERABLE walkthrough to match.
+
+**4. Pipeline started from bookings, not GBV.** `main.py` picked the
+highest-severity alert regardless of metric. Because `bookings` had a larger
+percentage drop than `gross_booking_value` (rate was also up, partially
+offsetting GBV), the pipeline opened the diagnostic with "bookings" as the
+headline metric. The assignment frames the problem as "GBV is off-track." Fix:
+added `METRIC_BUSINESS_WEIGHT` to `detect.py` (GBV weight = 10, bookings = 3,
+etc.) so severity now accounts for business impact. In `main.py`, explicitly
+filter to `gross_booking_value` alerts first and use that as the drill-down
+anchor. The pipeline now leads with the right headline metric.
+
+**5. No tests.** The README honestly said "no unit tests committed." That's
+fine for a 4-hour sprint, but for a "show exceptional work" prompt it leaves
+the diagnosis logic unverified. I added `tests/test_pipeline.py` with three
+tests: data shape and anomaly injection, top alert is London GBV (not a leaf
+metric), and diagnosis names `PRICE_ALGO_V12` as the root cause. All tests run
+with stdlib only — no pytest required.
+
+**What I asked AI to help with:** generating the test boilerplate (assertions,
+structure) and the business-weight dict values. **What I did myself:** diagnosing
+each root cause, deciding on the fix approach (especially the MIN_STREAK
+tradeoff and the gitignore root cause), and verifying the timeline arithmetic.
+The reviewer's critique was structurally correct on all five points; the fixes
+required understanding why each problem existed, not just applying a patch.
+
 ## Tools I used
 
-- **Claude (primary)** — for drafting the metric tree, the diagnostic
+- **Claude (prim ary)** — for drafting the metric tree, the diagnostic
   walkthrough prose, and the Python module scaffolding. Used via
   Claude Code inside my editor.
 - **Claude** (second pass) — for rewriting the non-technical analogy

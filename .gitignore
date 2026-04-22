@@ -11,8 +11,10 @@ dashboard/node_modules/
 dashboard/dist/
 dashboard/.vite/
 
-# Data (generated; reproducible via pipeline)
-/data/
+# Data directory is committed (marketplace_metrics.csv).
+# Exclude any other large data files that may be added locally.
+/data/*.json
+/data/*.parquet
 
 # OS
 .DS_Store
