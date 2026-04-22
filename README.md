@@ -1,6 +1,6 @@
-# Part 3 — Marketplace Anomaly Detection Pipeline
+# Marketplace Anomaly Detection Pipeline
 
-Working prototype for the Tilt Founders Associate take-home. A single
+Working prototype for a  single
 command runs a synthetic marketplace dataset through anomaly detection,
 walks the metric tree to localise the cause, and prints a plain-English
 incident report.
