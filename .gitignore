@@ -12,7 +12,7 @@ dashboard/dist/
 dashboard/.vite/
 
 # Data (generated; reproducible via pipeline)
-data/
+/data/
 
 # OS
 .DS_Store

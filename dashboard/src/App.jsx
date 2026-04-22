@@ -4,7 +4,7 @@ import {
   DollarSign, Users, Zap, Clock, CheckCircle, X,
   BarChart2, GitBranch, Search, Map,
 } from 'lucide-react';
-import { getDashboardData, CITY_COLORS, CITIES, DETECT_METRICS, ANOMALY_DATE } from './data/index.js';
+import { getDashboardData, CITY_COLORS, CITIES, ANOMALY_DATE } from './data/index.js';
 import { CityGBVChart, PriceCompChart as PriceChart, FunnelStageChart } from './components/Charts.jsx';
 import { RootCauseExplorer } from './components/RootCauseExplorer.jsx';
 
