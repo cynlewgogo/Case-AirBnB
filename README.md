@@ -57,22 +57,17 @@ competitor hotel index stays flat. Click-to-book conversion collapses ~40%.
 Other cities are untouched. The pipeline detects this on March 4 (Day +1)
 once the anomaly has persisted for two consecutive days.
 
-## Tradeoffs I made
+## Thought process and tradeoffs
 
 1. Simple anomaly detection over complex forecasting
 I used a rolling z-score / baseline variance approach instead of Prophet or heavier forecasting models. For a sharp step-change like a 40% drop in conversion, a simpler method is fast to build, easy to explain, and good enough to identify the issue. In this case, speed and clarity mattered more than model sophistication.
 
-2. Two-day confirmation before alerting
-I required anomalies to persist for two consecutive days before triggering an alert. This reduces false positives caused by one-off noise such as weekends, weather, events, or temporary tracking issues, while still allowing the system to catch a genuine problem quickly. It creates a more realistic operating model than escalating every single-day fluctuation.
-
-3. Prioritised business impact, not raw statistical movement
+2. Prioritised business impact, not raw statistical movement
 I weighted metrics based on commercial importance, so Gross Booking Value ranks above bookings, conversion, or clicks. This means the system surfaces the incident the business actually cares about first, rather than leading with a smaller downstream metric that happened to move more sharply in percentage terms.
 
-4. Rule-based drilldown instead of AI-led diagnosis
+3. Rule-based drilldown instead of AI-led diagnosis
 I used a deterministic metric tree to trace the root cause. For example, GBV declines because bookings fall, bookings fall because conversion drops, conversion drops in London, and London points toward a pricing competitiveness issue. This approach is transparent, reliable, and easier to trust for operational workflows. AI is better used to summarise findings than to reason through metric arithmetic.
 
-5. Lightweight data stack for prototype speed
-I used CSV and local files rather than a full warehouse or streaming setup. For a case study, the priority was demonstrating logic, prioritisation, and system design rather than enterprise infrastructure. In production, the same framework would sit on tools like Snowflake or BigQuery.
 
 ## What I would build next with more time
 
