@@ -3,74 +3,38 @@
 The brief asked for transparency on where I used AI, what it got right,
 where it was wrong, and where my own judgment took over. Here it is.
 
-## Acting on reviewer feedback (post-submission improvements)
+## Screenshots of AI use
 
-A reviewer flagged five concrete issues with the original submission. I used
-Claude to help implement fixes, but the diagnosis of each problem and the
-decision on how to fix it was mine. Below is the reviewer's critique and what
-I changed.
+I included two screenshots that show the kinds of prompts I used rather than
+every message in the workflow.
 
-**1. Dataset not committed.** `.gitignore` had `/data/` at the root level,
-which accidentally matched `dashboard/src/data/` (blocking the JS data module)
-and excluded `data/marketplace_metrics.csv` from version control. I changed the
-gitignore pattern to `/data/*.json` and `/data/*.parquet` — keeping the CSV
-committable. The dataset is now in the repo. The root cause was a too-broad
-glob pattern; I caught it by reading what gitignore patterns actually match, not
-just what I intended them to match.
+**Dashboard design prompt.** I asked AI to think like a Staff Product Data
+Scientist, senior UI/UX designer, and full-stack engineer at Airbnb. The goal
+was to turn the diagnostic logic into an internal dashboard with KPI cards,
+charts, heatmaps, alerts, and a root-cause explorer.
 
-**2. README clone path was wrong.** README said `cd tilt-founders-associate`
-which is the local folder name, not the repo name. A reviewer cloning the repo
-as `Case-AirBnB` would hit a dead path immediately. I updated the README to
-show the full `git clone` command followed by `cd Case-AirBnB`. This is
-embarrassing to miss — it's the first thing a reviewer runs.
+![Dashboard design prompt](screenshots/01-dashboard-prompt.png)
 
-**3. Timeline mismatch between narrative and code.** DELIVERABLE.md said the
-pricing change ships March 3 and is detected by March 5, but `generate_data.py`
-started on February 1 and set `ANOMALY_START_DAY = 60`, putting the anomaly on
-April 2 — a full month after the narrative. This mattered because the
-assignment asks about catching an issue before a month of damage accrues.
-Having the planted anomaly land on April 2 made the demonstration timeline
-incoherent. Fix: changed `START_DATE` to January 1, `ANOMALY_START_DAY` to 61
-(January 1 + 61 days = March 3). Added `MIN_STREAK = 2` to `detect.py` so
-alerts fire after two consecutive anomalous days, giving detection on March 4
-(Day +1). Updated the DELIVERABLE walkthrough to match.
+**Project revision prompt.** I also used AI as an implementation partner for
+specific repo edits: committing the dataset, fixing the README run path,
+aligning the March 3 timeline, anchoring the pipeline on GBV, and adding tests.
+I verified the final result by running the script and the tests rather than
+trusting the generated output directly.
 
-**4. Pipeline started from bookings, not GBV.** `main.py` picked the
-highest-severity alert regardless of metric. Because `bookings` had a larger
-percentage drop than `gross_booking_value` (rate was also up, partially
-offsetting GBV), the pipeline opened the diagnostic with "bookings" as the
-headline metric. The assignment frames the problem as "GBV is off-track." Fix:
-added `METRIC_BUSINESS_WEIGHT` to `detect.py` (GBV weight = 10, bookings = 3,
-etc.) so severity now accounts for business impact. In `main.py`, explicitly
-filter to `gross_booking_value` alerts first and use that as the drill-down
-anchor. The pipeline now leads with the right headline metric.
-
-**5. No tests.** The README honestly said "no unit tests committed." That's
-fine for a 4-hour sprint, but for a "show exceptional work" prompt it leaves
-the diagnosis logic unverified. I added `tests/test_pipeline.py` with three
-tests: data shape and anomaly injection, top alert is London GBV (not a leaf
-metric), and diagnosis names `PRICE_ALGO_V12` as the root cause. All tests run
-with stdlib only — no pytest required.
-
-**What I asked AI to help with:** generating the test boilerplate (assertions,
-structure) and the business-weight dict values. **What I did myself:** diagnosing
-each root cause, deciding on the fix approach (especially the MIN_STREAK
-tradeoff and the gitignore root cause), and verifying the timeline arithmetic.
-The reviewer's critique was structurally correct on all five points; the fixes
-required understanding why each problem existed, not just applying a patch.
+![Project revision prompt](screenshots/02-project-revision-prompt.png)
 
 ## Tools I used
 
-- **Claude (prim ary)** — for drafting the metric tree, the diagnostic
+- **Claude (primary)** — for drafting the metric tree, the diagnostic
   walkthrough prose, and the Python module scaffolding. Used via
   Claude Code inside my editor.
 - **Claude** (second pass) — for rewriting the non-technical analogy
   after my first version sounded too clinical.
 - **ChatGPT / GPT-4** — quick spot-check of the rolling z-score choice
   vs. alternatives (STL, Prophet) for a regime-shift anomaly.
-- **My own judgment** — structuring Part 1 around *accounting identities*
-  instead of loose correlation, the decision to keep the diagnostic layer
-  deterministic, and the framing of the isolation step.
+- **My own judgment** — structuring Part 1 around metric equations instead of
+  loose correlation, the decision to keep the diagnostic layer deterministic,
+  and the framing of the isolation step.
 
 ## Where AI was right and I kept the output
 
@@ -85,13 +49,12 @@ required understanding why each problem existed, not just applying a patch.
 ## Where AI was wrong and I overrode it
 
 - **First draft wanted a 7-node decision tree in `diagnose.py` using an
-  LLM to choose the next drill target.** I rejected this. A marketplace
-  metric tree is an *accounting identity*, not a semantic search
-  problem. Using an LLM here adds nondeterminism and hallucination
-  surface with zero upside — a parent node's children always sum to the
-  parent, so the drill target is the child with the largest attributed
-  deviation. That's arithmetic. I kept the LLM strictly at the
-  summary layer.
+  LLM to choose the next drill target.** I rejected this. The core marketplace
+  metrics can be modelled as equations — `GBV = Bookings × ABV`, `Bookings =
+  Sessions × Conversion` — so the drill target should be the input variable
+  that mathematically explains the movement. Using an LLM here adds
+  nondeterminism and hallucination surface with little upside. I kept the LLM
+  strictly at the summary layer.
 - **First draft of the non-technical analogy was a "smoke detector"**,
   which is accurate but boring and doesn't capture the *drilling*
   behavior. The smoke detector just fires. I rewrote it as the hospital
@@ -114,10 +77,10 @@ required understanding why each problem existed, not just applying a patch.
 
 ## Where I used judgment that AI wouldn't have volunteered
 
-- **Framing the metric tree as an accounting identity.** The "each
-  parent equals its children" constraint is the reason the drill is
-  deterministic. AI defaulted to a looser "influences" graph. The
-  identity framing is what makes the system trustworthy.
+- **Framing the metric tree as equations.** Each metric node is a function of
+  input variables, which is why the drill is deterministic. AI defaulted to a
+  looser "influences" graph. The equation framing is what makes the system
+  trustworthy.
 - **Putting change-log / deploy events as first-class leaf inputs.**
   Most anomaly-detection write-ups stop at "the metric broke." The
   interesting part is correlating the break with a *dated external
@@ -174,9 +137,3 @@ The React analytics dashboard ([cynlewgogo.github.io/Case-AirBnB](https://cynlew
 | No metric dependency map | London metric funnel (GBV → Bookings → Conversion → Funnel stage → Leaf) |
 | Ownership fragmentation | Incident summary (single structured output, designed for exec consumption) |
 
-## If I'd had more time
-
-I'd have screenshotted the back-and-forth with Claude for the metric
-tree and the gap analysis loop — the brief asked for screenshots. I ran
-out of budget for that. If that matters, happy to reproduce live on a
-call: I still have the conversation history.

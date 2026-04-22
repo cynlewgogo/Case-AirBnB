@@ -126,7 +126,7 @@ The London pricing bug went undetected for nearly a month despite daily standups
 
 ### 3. Conversion is a lagging outcome, not the root signal
 
-**Why it failed:** Booking conversion is the end result of a decision already made upstream. By the time conversion visibly drops, Airbnb's price had already been uncompetitive for days. The teams monitoring conversion were watching the wound, not the cause. The earlier signal — the price gap opening on April 2 — was not monitored at all.
+**Why it failed:** Booking conversion is the end result of a decision already made upstream. By the time conversion visibly drops, Airbnb's price had already been uncompetitive for days. The teams monitoring conversion were watching the wound, not the cause. The earlier signal — the price gap opening on March 3 — was not monitored at all.
 
 **How this system closes it:** The price competitiveness ratio (Airbnb rate ÷ hotel index) is monitored as its own time series, upstream of conversion. A deterioration in competitiveness triggers its own alert before conversion has time to decay. The system catches the cause before the lagging outcome confirms it.
 
