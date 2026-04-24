@@ -55,7 +55,7 @@ Three tests cover: data shape and anomaly injection, top alert is London GBV
 On day 61 (March 3, 2026), London's nightly rate jumps ~15% while the
 competitor hotel index stays flat. Click-to-book conversion collapses ~40%.
 Other cities are untouched. The pipeline detects this on March 4 (Day +1)
-once the anomaly has persisted for two consecutive days.
+once the anomaly has persisted.
 
 ## Thought process and tradeoffs
 
@@ -66,7 +66,7 @@ I used a rolling z-score / baseline variance approach instead of Prophet or heav
 I weighted metrics based on commercial importance, so Gross Booking Value ranks above bookings, conversion, or clicks. This means the system surfaces the incident the business actually cares about first, rather than leading with a smaller downstream metric that happened to move more sharply in percentage terms.
 
 3. Rule-based drilldown instead of AI-led diagnosis
-I used a deterministic metric tree to trace the root cause. For example, GBV declines because bookings fall, bookings fall because conversion drops, conversion drops in London, and London points toward a pricing competitiveness issue. This approach is transparent, reliable, and easier to trust for operational workflows. AI is better used to summarise findings than to reason through metric arithmetic.
+I used a deterministic metric tree to trace the root cause. For example, GBV declines because bookings fall, bookings fall because conversion drops, conversion drops in London, and London points toward a pricing competitiveness issue. This approach is transparent, reliable, and easier to trust for operational workflows. AI is better used to summarise findings than to reason through metric arithmetic. Using an LLM to choose the next drill target adds nondeterminism and hallucination surface with no upside when the relationships are exact equations. LLM stays at the summary layer only — turning the structured Diagnosis object into a plain-English executive brief.
 
 
 ## What I would build next with more time
@@ -77,7 +77,7 @@ I would adjust for weekday versus weekend patterns, holidays, and major local ev
 2. Integrate deploy and experiment logs
 I would connect pricing releases, experiments, app changes, and regional configuration updates into the monitoring layer so the system can automatically test whether a recent change likely caused the anomaly.
 
-3. Improve segmentation depth
+3. Deeper automatic segmentation
 I would auto-scan across city, device, user type, listing type, and trip length to isolate problems faster and reduce manual investigation time.
 
 4. Smart alert ranking
