@@ -82,6 +82,3 @@ I would auto-scan across city, device, user type, listing type, and trip length 
 
 4. Smart alert ranking
 I would rank alerts based on business impact, confidence, and novelty so only the most important incidents get escalated, reducing alert fatigue.
-
-5. AI summary layer for decision-makers
-Once the diagnosis is structured, I would use AI to turn it into a concise executive update such as: London bookings are down due to weaker conversion after a pricing model update, recommend rollback and pricing review.
