@@ -34,8 +34,6 @@ and dashboard all pointed to March 3 as the pricing change date.
 - **Claude (primary)** — for drafting the metric tree, the diagnostic
   walkthrough prose, and the Python module scaffolding. Used via
   Claude Code inside my editor.
-- **Claude** (second pass) — for rewriting the non-technical analogy
-  after my first version sounded too clinical.
 - **ChatGPT / GPT-4** — quick spot-check of the rolling z-score choice
   vs. alternatives (STL, Prophet) for a regime-shift anomaly.
 - **My own judgment** — structuring Part 1 around metric equations instead of
@@ -61,12 +59,6 @@ and dashboard all pointed to March 3 as the pricing change date.
   that mathematically explains the movement. Using an LLM here adds
   nondeterminism and hallucination surface with little upside. I kept the LLM
   strictly at the summary layer.
-- **First draft of the non-technical analogy was a "smoke detector"**,
-  which is accurate but boring and doesn't capture the *drilling*
-  behavior. The smoke detector just fires. I rewrote it as the hospital
-  triage nurse because what's interesting is the nurse *walking the
-  causal chain backwards* — that's what the system does and that's what
-  a non-technical reader needs to understand.
 - **First draft of Part 2 jumped straight to the pricing cause.** That's
   writing the bottom line, not the walkthrough. I forced it to do the
   decomposition step by step so the reviewer can see how the system
